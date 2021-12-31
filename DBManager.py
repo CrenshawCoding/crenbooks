@@ -5,9 +5,17 @@ import shutil
 
 
 class DBManager:
+    dev_mode = True
+
     def __init__(self):
-        self.library_path = './db/library.csv'
-        self.currently_active_book_directory = './db/current_book.txt'
+        if not os.path.exists('./db/'):
+            os.mkdir('./db/')
+        if DBManager.dev_mode:
+            self.library_path = './db/library_dev.csv'
+            self.currently_active_book_directory = './db/current_book_dev.txt'
+        else:
+            self.library_path = './db/library.csv'
+            self.currently_active_book_directory = './db/current_book.txt'
         self.currently_active_book_path = None
         self.fieldnames = ['ID', 'Path', 'Progress']
         if not os.path.exists(self.library_path):
