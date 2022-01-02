@@ -25,6 +25,8 @@ class Player:
         self.updater = Thread(target=self.progress_updater).start()
 
     def play(self):
+        if not self.stopped:
+            return
         if self.current_progress:
             self.playback_process = subprocess.Popen('ffplay -nodisp -v quiet -ss {0} {1}'.format(self.current_progress,
                                                                                                   self.audio_file))
@@ -50,7 +52,7 @@ class Player:
         self.dbManager.save_progress(self.audio_file, self.current_progress)
 
     # Updates the audiobook progress every <interval> seconds.
-    def progress_updater(self, interval=1):
+    def progress_updater(self, interval=0.25):
         while True:
             if not self.stopped:
                 playtime = time.time() - self.starttime
