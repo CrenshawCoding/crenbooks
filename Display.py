@@ -37,7 +37,7 @@ class Display:
             self.player.stop()
 
     def add_audiobook_button_callback(self):
-        book = filedialog.askopenfile(mode='r'):
+        book = filedialog.askopenfile(mode='r')
         if book:
             self.player = Player.Player(book.name)
             self.current_book.set(DBManager.DBManager.get_book_id_from_path(self.player.audio_file))
