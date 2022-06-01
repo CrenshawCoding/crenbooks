@@ -5,9 +5,17 @@ import shutil
 
 
 class DBManager:
+    dev_mode = False
+
     def __init__(self):
-        self.library_path = './db/library.csv'
-        self.currently_active_book_directory = './db/current_book.txt'
+        if not os.path.exists('./db/'):
+            os.mkdir('./db/')
+        if DBManager.dev_mode:
+            self.library_path = './db/library_dev.csv'
+            self.currently_active_book_directory = './db/current_book_dev.txt'
+        else:
+            self.library_path = './db/library.csv'
+            self.currently_active_book_directory = './db/current_book.txt'
         self.currently_active_book_path = None
         self.fieldnames = ['ID', 'Path', 'Progress']
         if not os.path.exists(self.library_path):
@@ -21,7 +29,7 @@ class DBManager:
 
     def save_progress(self, book_id, progress):
         templib = NamedTemporaryFile(mode='w', delete=False, newline='')
-        with open(self.library_path, 'r', encoding='utf8', newline='') as library, templib:
+        with open(self.library_path, 'r', newline='') as library, templib:
             reader = csv.DictReader(library, fieldnames=self.fieldnames)
             writer = csv.DictWriter(templib, fieldnames=self.fieldnames)
             for row in reader:
@@ -38,11 +46,12 @@ class DBManager:
                 writer = csv.DictWriter(library, fieldnames=self.fieldnames)
                 row = {'ID': ' '.join(os.path.basename(path).split('.')[:-1]), 'Path': path, 'Progress': '0'}
                 writer.writerow(row)
+
         with open(self.currently_active_book_directory, 'w') as current_book:
             current_book.write(path)
 
     def book_exists(self, path):
-        with open(self.library_path, 'r', encoding='utf8') as library:
+        with open(self.library_path, 'r') as library:
             reader = csv.DictReader(library, delimiter=',', quotechar='|')
             for row in reader:
                 if row['Path'] == str(path):
@@ -50,11 +59,12 @@ class DBManager:
         return False
 
     def get_progress(self, path):
-        with open(self.library_path, 'r', encoding='utf8') as library:
+        with open(self.library_path, 'r') as library:
             reader = csv.DictReader(library, delimiter=',', quotechar='|')
             for row in reader:
                 if row['Path'] == str(path):
                     return row['Progress']
+        return 0
 
     @staticmethod
     def get_book_id_from_path(path):
